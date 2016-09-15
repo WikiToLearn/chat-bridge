@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
 from WtlChatAdapters.WtlChatAdapter import WtlChatAdapter
 import requests
-
+import time
 
 class RocketChat(WtlChatAdapter):
 
-    def __init__(self, adapter_name, baseurl, username, password):
-        WtlChatAdapter.__init__(self,adapter_name)
+    def __init__(self, adapter_name, event_emitter, baseurl, username, password):
+        WtlChatAdapter.__init__(self,adapter_name,event_emitter)
         self.baseurl = baseurl
         self.base_api_url = "{}api/".format(self.baseurl)
+        self.username = username
 
         api_version = requests.get("{}version".format(self.base_api_url))
         api_version_response = api_version.json()
@@ -60,27 +61,55 @@ class RocketChat(WtlChatAdapter):
         api_publicRooms_response = self.make_api_get("publicRooms")
         return api_publicRooms_response['rooms']
 
+    def joined_rooms(self):
+        api_publicRooms_response = self.make_api_get("joinedRooms")
+        return api_publicRooms_response['rooms']
+
     def rooms_join(self,room_id):
         api_rooms__id_join_response = self.make_api_post("rooms/{}/join".format(room_id),{})
-        print(api_rooms__id_join_response)
 
     def rooms_leave(self,room_id):
         api_rooms__id_join_response = self.make_api_post("rooms/{}/leave".format(room_id),{})
-        print(api_rooms__id_join_response)
 
-    def rooms_messages(self,room_id):
-        api_rooms__id_messages_response = self.make_api_get("rooms/{}/messages".format(room_id))
+    def rooms_messages(self,room_id,skip=0,limit=50):
+        api_rooms__id_messages_response = self.make_api_get("rooms/{}/messages?skip={}&limit={}".format(room_id,skip,limit))
         return api_rooms__id_messages_response['messages']
 
     def rooms_send(self,room_id,msg):
         api_rooms__id_send_json = {}
         api_rooms__id_send_json['msg'] = msg
         api_rooms__id_send_response = self.make_api_post_json("rooms/{}/send".format(room_id),api_rooms__id_send_json)
-        print(api_rooms__id_send_response)
 
     def run(self):
+        channels_ids = []
+        for room in self.joined_rooms():
+            channels_ids.append(room['_id'])
+        channels_last_message_id = {}
+        for channel_id in channels_ids:
+            messages = self.rooms_messages(channel_id,0,1)
+            if len(messages) > 0:
+                channels_last_message_id[channel_id] = messages[0]['_id']
+
+        while self.running:
+            time.sleep(1)
+            for channel_id in channels_ids:
+                messages = self.rooms_messages(channel_id,0,1)
+                for message in messages:
+                    if channels_last_message_id[channel_id] != message['_id']:
+                        if message['u']['username'] != self.username:
+                            message_event = {"adapter_name":self.adapter_name}
+                            message_event['channel_id'] = channel_id
+                            message_event['from'] = message['u']['username']
+                            message_event['text'] = message['msg']
+                            self.event_emitter.emit('message',message_event)
+                        channels_last_message_id[channel_id] = message['_id']
+
         api_logout = requests.get("{}logout".format(
             self.base_api_url), headers=self.auth_headers)
         api_logout_response = api_logout.json()
         if api_logout_response['status'] != "success":
             raise Exception("RocketChat logout status: {} ({})".format(api_logout_response['status'],api_logout_response['message']))
+        self.stop()
+
+    def send_msg(self,channel_id,msg):
+        self.rooms_send(channel_id,msg)

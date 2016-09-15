@@ -3,7 +3,7 @@ RUN pip install flask
 RUN pip install pyyaml
 RUN pip install python-telegram-bot
 RUN pip install requests
-RUN pip install python-ddp
+RUN pip install pyee
 
 ADD ./src/ /opt/
 WORKDIR /opt/
