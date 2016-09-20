@@ -7,6 +7,7 @@ from pyee import EventEmitter
 
 from WtlChatAdapters.RocketChat import RocketChat
 from WtlChatAdapters.Telegram import Telegram
+from WtlChatAdapters.Irc import Irc
 
 event_emitter = EventEmitter()
 
@@ -18,20 +19,6 @@ stream_bridges = open('/etc/chat-bridge/bridges.yml', 'r')
 bridges = yaml.load(stream_bridges, Loader=yaml.Loader)
 stream_bridges.close()
 
-all_adapters_ok = True
-for bridge in bridges:
-    print("Chack adapters for: {}".format(bridge))
-    for channel in bridges[bridge]:
-        adapter_ok = channel['adapter_name'] in adapters
-        all_adapters_ok = all_adapters_ok and adapter_ok
-        print("> {} ({}): {}".format(
-            channel['adapter_name'], channel['channel_id'], adapter_ok))
-    print()
-
-if not all_adapters_ok:
-    print("Some adapter is not supported, check your config")
-    sys.exit(1)
-
 chat_adapters = {}
 for adapter in adapters:
     if adapters[adapter]['type'] == "rocketchat":
@@ -40,10 +27,28 @@ for adapter in adapters:
     elif adapters[adapter]['type'] == "telegram":
         chat_adapters[adapter] = Telegram(
             adapter, event_emitter, adapters[adapter]['token'])
+    elif adapters[adapter]['type'] == "irc":
+        chat_adapters[adapter] = Irc(adapter, event_emitter, adapters[adapter]['server'], adapters[adapter]['port'], adapters[adapter]['nickname'])
     else:
         print("Adapter type {} not supported".format(
             adapters[adapter]['type']))
         sys.exit(1)
+
+all_adapters_ok = True
+for bridge in bridges:
+    print("Chack adapters for: {}".format(bridge))
+    for channel in bridges[bridge]:
+        adapter_ok = channel['adapter_name'] in adapters
+        adapter_ok = chat_adapters[channel['adapter_name']
+                      ].use_channel(channel['channel_id']) and adapter_ok
+        all_adapters_ok = all_adapters_ok and adapter_ok
+        print("> {} ({}): {}".format(
+            channel['adapter_name'], channel['channel_id'], adapter_ok))
+    print()
+
+if not all_adapters_ok:
+    print("Some adapter is not supported, check your config")
+    sys.exit(1)
 
 for adapter in chat_adapters:
     chat_adapters[adapter].start()
@@ -72,7 +77,7 @@ def event_handler(message):
             for dest_channel in this_bridge_dests:
                 print("Sending to {}".format(dest_channel['channel_id']))
                 chat_adapters[dest_channel['adapter_name']].send_msg(dest_channel['channel_id'], message[
-                                                                'from'] + " (" + from_label+ "): " + message['text'])
+                    'from'] + " (" + from_label + "): " + message['text'])
     print()
 
 print("Running...")

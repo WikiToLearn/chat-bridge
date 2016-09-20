@@ -1,9 +1,10 @@
 FROM python:3.5
-RUN pip install flask
-RUN pip install pyyaml
-RUN pip install python-telegram-bot
-RUN pip install requests
-RUN pip install pyee
+RUN pip install flask==0.11.1
+RUN pip install pyyaml==3.12
+RUN pip install python-telegram-bot==5.0.0
+RUN pip install requests==2.11.1
+RUN pip install pyee==1.0.2
+RUN pip install irc==15.0.1
 
 ADD ./src/ /opt/
 WORKDIR /opt/

@@ -17,7 +17,7 @@ class TestBot(irc.bot.SingleServerIRCBot):
 
     def on_welcome(self, c, e):
         print("welcome")
-        print(c.join("#wikitolearn-tech"))
+        print(c.join("#wikitolearn-tech-test"))
         print(e)
 
     def on_join(self, c, e):
@@ -32,6 +32,10 @@ class TestBot(irc.bot.SingleServerIRCBot):
 
     def on_pubmsg(self, c, e):
         print("pubmsg")
+        print(e.source)
+        print(e.target)
+        print(" ".join(e.arguments))
+        c.privmsg(e.target, "This: {}".format(" ".join(e.arguments)))
         print(e)
 
     def on_dccmsg(self, c, e):

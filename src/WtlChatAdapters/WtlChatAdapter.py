@@ -12,3 +12,6 @@ class WtlChatAdapter(Thread):
 
     def stop(self):
         self.running = False
+
+    def use_channel(self,channel_id):
+        return True
