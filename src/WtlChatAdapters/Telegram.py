@@ -21,10 +21,10 @@ class Telegram(WtlChatAdapter):
         while self.running:
             try:
                 for update in self.bot.getUpdates(offset=self.update_id, timeout=10):
-                    chat_id = update.message.chat_id
                     self.update_id = update.update_id + 1
 
                     if update.message:
+                        chat_id = update.message.chat_id
                         message_event = {"adapter_name":self.adapter_name}
                         message_event['channel_id'] = "{}".format(chat_id)
                         message_event['text'] = update.message.text
