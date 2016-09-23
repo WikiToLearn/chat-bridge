@@ -5,50 +5,32 @@ import time
 import irc.bot
 
 class IrcBridgeBot(irc.bot.SingleServerIRCBot):
-    def __init__(self, server, port, nickname):
+    def __init__(self, adapter_name, event_emitter, server, port, nickname):
         irc.bot.SingleServerIRCBot.__init__(self, [(server, port)], nickname, nickname)
         self.channels_to_join = []
+        self.adapter_name = adapter_name
+        self.event_emitter = event_emitter
 
     def on_nicknameinuse(self, c, e):
-        print("nicknameinuse")
         c.nick(c.get_nickname() + "_")
-        print(e)
 
     def on_welcome(self, c, e):
-        print("welcome")
         for channel_id in self.channels_to_join:
             c.join(channel_id)
-        print(e)
-
-    def on_join(self, c, e):
-        print("joined to " + e.target)
-        print(e)
 
     def on_privmsg(self, c, e):
-        print("privmsg")
-        print(e)
-        #c.notice(e.source.nick, "CIAO 1")
-        #c.privmsg(e.source.nick,"CIAO 2")
+        message_event = {"adapter_name":self.adapter_name}
+        message_event['channel_id'] = e.target
+        message_event['from'] = e.source
+        message_event['text'] = " ".join(e.arguments)
+        self.event_emitter.emit('message',message_event)
 
     def on_pubmsg(self, c, e):
-        print("pubmsg")
-        print(e.source)
-        print(e.target)
-        print(" ".join(e.arguments))
-        c.privmsg(e.target, "This: {}".format(" ".join(e.arguments)))
-        print(e)
-
-    def on_dccmsg(self, c, e):
-        print("dccmsg")
-        print(e)
-
-    def on_ctcp(self, c, e):
-        print("ctcp")
-        print(e)
-
-    def on_dccmsg(self, c, e):
-        print("ccmsg")
-        print(e)
+        message_event = {"adapter_name":self.adapter_name}
+        message_event['channel_id'] = e.target
+        message_event['from'] = e.source
+        message_event['text'] = " ".join(e.arguments)
+        self.event_emitter.emit('message',message_event)
 
     def on_disconnect(self, c, e):
         print(e)
@@ -60,7 +42,7 @@ class Irc(WtlChatAdapter):
 
     def __init__(self, adapter_name,event_emitter, server, port, nickname):
         WtlChatAdapter.__init__(self,adapter_name,event_emitter)
-        self.ircbot = IrcBridgeBot(server, port, nickname)
+        self.ircbot = IrcBridgeBot(adapter_name,event_emitter,server, port, nickname)
 
     def run(self):
         self.ircbot.start()
@@ -74,5 +56,6 @@ class Irc(WtlChatAdapter):
         return True
 
     def stop(self):
+        self.ircbot.disconnect()
         self.ircbot.die()
         WtlChatAdapter.stop(self)
