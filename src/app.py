@@ -19,6 +19,11 @@ for adapter in adapters:
     if adapters[adapter]['type'] == "rocketchat":
         chat_adapters[adapter] = RocketChat(adapter, event_emitter, baseurl=adapters[adapter][
                                             'baseurl'], username=adapters[adapter]['username'], password=adapters[adapter]['password'])
+        for room in chat_adapters[adapter].joined_rooms():
+            print(room['_id'])
+            if 'name' in room:
+                print(room['name'])
+            print("")
     elif adapters[adapter]['type'] == "telegram":
         chat_adapters[adapter] = Telegram(
             adapter, event_emitter, adapters[adapter]['token'])
