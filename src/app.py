@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
+import wtl
 import requests
-import yaml
 import sys
 import time
 from pyee import EventEmitter
@@ -11,13 +11,8 @@ from WtlChatAdapters.Irc import Irc
 
 event_emitter = EventEmitter()
 
-stream_adapters = open('/etc/chat-bridge/adapters.yml', 'r')
-adapters = yaml.load(stream_adapters, Loader=yaml.Loader)
-stream_adapters.close()
-
-stream_bridges = open('/etc/chat-bridge/bridges.yml', 'r')
-bridges = yaml.load(stream_bridges, Loader=yaml.Loader)
-stream_bridges.close()
+adapters = wtl.load_config(config_prefix="adapters",config_dir="/etc/chat-bridge/")
+bridges = wtl.load_config(config_prefix="bridges",config_dir="/etc/chat-bridge/")
 
 chat_adapters = {}
 for adapter in adapters:
