@@ -96,6 +96,11 @@ class RocketChat(WtlChatAdapter):
                 messages = self.rooms_messages(channel_id,0,1)
                 for message in messages:
                     if channels_last_message_id[channel_id] != message['_id']:
+                        if 'attachments' in message:
+                            for attachment in message['attachments']:
+                                print(attachment['title'])
+                                print(attachment['title_link'])
+                                print(attachment['title_link_download'])
                         if message['u']['username'] != self.username:
                             message_event = {"adapter_name":self.adapter_name}
                             message_event['channel_id'] = channel_id
