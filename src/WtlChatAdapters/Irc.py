@@ -49,7 +49,7 @@ class Irc(WtlChatAdapter):
         self.stop()
 
     def send_msg(self,channel_id,msg):
-        self.ircbot.connection.privmsg(channel_id, msg)
+        self.ircbot.connection.privmsg(channel_id, msg.replace('\n','[\\n]'))
 
     def use_channel(self,channel_id):
         self.ircbot.add_join_channels(channel_id)

@@ -96,16 +96,21 @@ class RocketChat(WtlChatAdapter):
                 messages = self.rooms_messages(channel_id,0,1)
                 for message in messages:
                     if channels_last_message_id[channel_id] != message['_id']:
-                        if 'attachments' in message:
-                            for attachment in message['attachments']:
-                                print(attachment['title'])
-                                print(attachment['title_link'])
-                                print(attachment['title_link_download'])
                         if message['u']['username'] != self.username:
                             message_event = {"adapter_name":self.adapter_name}
                             message_event['channel_id'] = channel_id
                             message_event['from'] = message['u']['username']
-                            message_event['text'] = message['msg']
+                            message_event['text'] = ""
+                            if 'attachments' in message:
+                                for attachment in message['attachments']:
+                                    if 'text' in attachment and 'author_name' in attachment and 'ts' in attachment and 'author_icon' in attachment:
+                                        message_event['text'] = message_event['text'] + "Reply to: '{}' from {}\n".format(attachment['text'],attachment['author_name'])
+                                    else:
+                                        #{'title': '', 'title_link_download': True, 'title_link': ''} sent file
+                                        #{'image_url': '', 'title_link': '', 'title_link_download': True, 'image_dimensions': {'width': 2432, 'height': 3286}, 'title': '', 'image_type': 'image/jpeg', 'image_size': 100} # sent image
+
+                                        message_event['text'] = message_event['text'] + "Sent an attachment (not supported yet)\n"
+                            message_event['text'] = message_event['text'] + message['msg']
                             self.event_emitter.emit('message',message_event)
                         channels_last_message_id[channel_id] = message['_id']
 
