@@ -2,7 +2,7 @@
 from threading import Thread
 import time
 
-class WtlChatAdapter(Thread):
+class ChatAdapter(Thread):
 
     def __init__(self, adapter_name, event_emitter):
         Thread.__init__(self)

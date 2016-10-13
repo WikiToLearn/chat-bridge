@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from WtlChatAdapters.WtlChatAdapter import WtlChatAdapter
+from ChatAdapters.ChatAdapter import ChatAdapter
 import time
 
 import irc.bot
@@ -38,10 +38,10 @@ class IrcBridgeBot(irc.bot.SingleServerIRCBot):
     def add_join_channels(self,channel_id):
         self.channels_to_join.append(channel_id)
 
-class Irc(WtlChatAdapter):
+class Irc(ChatAdapter):
 
     def __init__(self, adapter_name,event_emitter, server, port, nickname):
-        WtlChatAdapter.__init__(self,adapter_name,event_emitter)
+        ChatAdapter.__init__(self,adapter_name,event_emitter)
         self.ircbot = IrcBridgeBot(adapter_name,event_emitter,server, port, nickname)
 
     def run(self):
@@ -58,4 +58,4 @@ class Irc(WtlChatAdapter):
     def stop(self):
         self.ircbot.disconnect()
         self.ircbot.die()
-        WtlChatAdapter.stop(self)
+        ChatAdapter.stop(self)

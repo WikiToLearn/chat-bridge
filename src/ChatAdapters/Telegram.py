@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from WtlChatAdapters.WtlChatAdapter import WtlChatAdapter
+from ChatAdapters.ChatAdapter import ChatAdapter
 import time
 import requests
 import telegram
@@ -8,10 +8,10 @@ from tqdm import tqdm
 from urllib.parse import urlparse
 from os.path import splitext
 
-class Telegram(WtlChatAdapter):
+class Telegram(ChatAdapter):
 
     def __init__(self, adapter_name,event_emitter, token):
-        WtlChatAdapter.__init__(self,adapter_name,event_emitter)
+        ChatAdapter.__init__(self,adapter_name,event_emitter)
         self.bot = telegram.Bot(token)
 
         try:

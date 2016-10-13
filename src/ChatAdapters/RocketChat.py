@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-from WtlChatAdapters.WtlChatAdapter import WtlChatAdapter
+from ChatAdapters.ChatAdapter import ChatAdapter
 import requests
 import time
 
-class RocketChat(WtlChatAdapter):
+class RocketChat(ChatAdapter):
 
     def __init__(self, adapter_name, event_emitter, baseurl, username, password):
-        WtlChatAdapter.__init__(self,adapter_name,event_emitter)
+        ChatAdapter.__init__(self,adapter_name,event_emitter)
         self.baseurl = baseurl
         self.base_api_url = "{}api/".format(self.baseurl)
         self.username = username

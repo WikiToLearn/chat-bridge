@@ -5,9 +5,9 @@ import sys
 import time
 from pyee import EventEmitter
 
-from WtlChatAdapters.RocketChat import RocketChat
-from WtlChatAdapters.Telegram import Telegram
-from WtlChatAdapters.Irc import Irc
+from ChatAdapters.RocketChat import RocketChat
+from ChatAdapters.Telegram import Telegram
+from ChatAdapters.Irc import Irc
 
 try:
     event_emitter = EventEmitter()
