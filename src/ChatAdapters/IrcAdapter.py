@@ -38,7 +38,7 @@ class IrcBridgeBot(irc.bot.SingleServerIRCBot):
     def add_join_channels(self,channel_id):
         self.channels_to_join.append(channel_id)
 
-class Irc(ChatAdapter):
+class IrcAdapter(ChatAdapter):
 
     def __init__(self, adapter_name,event_emitter, server, port, nickname):
         ChatAdapter.__init__(self,adapter_name,event_emitter)

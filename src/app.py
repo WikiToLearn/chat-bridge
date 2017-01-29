@@ -5,9 +5,9 @@ import sys
 import time
 from pyee import EventEmitter
 
-from ChatAdapters.RocketChat import RocketChat
-from ChatAdapters.Telegram import Telegram
-from ChatAdapters.Irc import Irc
+from ChatAdapters.RocketChatAdapter import RocketChatAdapter
+from ChatAdapters.TelegramAdapter import TelegramAdapter
+from ChatAdapters.IrcAdapter import IrcAdapter
 
 try:
     event_emitter = EventEmitter()
@@ -18,18 +18,18 @@ try:
     chat_adapters = {}
     for adapter in adapters:
         if adapters[adapter]['type'] == "rocketchat":
-            chat_adapters[adapter] = RocketChat(adapter, event_emitter, baseurl=adapters[adapter][
+            chat_adapters[adapter] = RocketChatAdapter(adapter, event_emitter, baseurl=adapters[adapter][
                                                 'baseurl'], username=adapters[adapter]['username'], password=adapters[adapter]['password'])
-            for room in chat_adapters[adapter].joined_rooms():
+            for room in chat_adapters[adapter].rocketchat.channels_list():
                 print(room['_id'])
                 if 'name' in room:
                     print(room['name'])
                 print("")
         elif adapters[adapter]['type'] == "telegram":
-            chat_adapters[adapter] = Telegram(
+            chat_adapters[adapter] = TelegramAdapter(
                 adapter, event_emitter, adapters[adapter]['token'])
         elif adapters[adapter]['type'] == "irc":
-            chat_adapters[adapter] = Irc(adapter, event_emitter, adapters[adapter]['server'], adapters[adapter]['port'], adapters[adapter]['nickname'])
+            chat_adapters[adapter] = IrcAdapter(adapter, event_emitter, adapters[adapter]['server'], adapters[adapter]['port'], adapters[adapter]['nickname'])
         else:
             print("Adapter type {} not supported".format(
                 adapters[adapter]['type']))

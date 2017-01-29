@@ -8,7 +8,7 @@ from tqdm import tqdm
 from urllib.parse import urlparse
 from os.path import splitext
 
-class Telegram(ChatAdapter):
+class TelegramAdapter(ChatAdapter):
 
     def __init__(self, adapter_name,event_emitter, token):
         ChatAdapter.__init__(self,adapter_name,event_emitter)
